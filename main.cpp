@@ -71,7 +71,7 @@ void start_program(Graph &graph)
       }
       std::cout << "End: ";
       std::cin >> dst;
-      graph.UFS(src,dst);
+      graph.UCS(src,dst);
     }
     else if(choice == 5)
     {

@@ -18,7 +18,7 @@ class Graph{
     int edges(); //number of edges
     int get_edge_value(std::string, std::string); // returns the value associated with the edge (x, y);
     void set_edge_value(std::string, std::string, int); // sets the value associated with the edge (x, y);
-    void UFS(std::string, std::string);
+    void UCS(std::string, std::string);
     void k_nearest(std::string,int);
   private:
     int V; // number of vertices

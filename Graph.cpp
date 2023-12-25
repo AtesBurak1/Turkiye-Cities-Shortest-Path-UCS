@@ -144,7 +144,7 @@ void Graph::print_path(std::vector <std::string> &path)
   }
 }
 
-void Graph::UFS(std::string src, std::string dst)
+void Graph::UCS(std::string src, std::string dst)
 {
   int cost {0};
   int visited[81] = {0}; // initilaze visited list
