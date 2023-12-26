@@ -24,7 +24,7 @@ class Graph{
     int V; // number of vertices
     int E; // number of edges
     std::map <std::string, std::vector <std::string>> adj; // choice of adjacency lists (linked list, matrix or hash table or whatever you consider more suitable
-    int distance_matrix[81][81];
+    std::map <int, std::map <int,int>> distances;
     void print_path(std::vector <std::string>&);
     void print_k_city(std::vector <std::string>&);
     std::vector <std::string> uniform_cost_search(std::string, std::string,int &, int*);

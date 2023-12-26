@@ -52,7 +52,7 @@ Graph::Graph(std::string txt_name, std::string distance_name)
         continue;
       }
       // Convert the string distance value to integer
-      this->distance_matrix[row][col] = std::stoi(value);
+      this->distances[row][col] = std::stoi(value);
       ++col;
     }
 
@@ -71,7 +71,7 @@ int Graph::get_edge_value(std::string vertex_src, std::string vertex_dst)
   
   auto it = find(this->adj[vertex_src].begin(), this->adj[vertex_src].end(), vertex_dst);
   if(it != adj[vertex_src].end()) // if an edge is found between cities
-    return this->distance_matrix[ getCityEnum(vertex_src) ][ getCityEnum(vertex_dst) ];
+    return this->distances[ getCityEnum(vertex_src) ][ getCityEnum(vertex_dst) ];
   else
     return 0;
 }
@@ -82,9 +82,9 @@ void Graph::set_edge_value(std::string vertex_src, std::string vertex_dst, int w
 
   if(it != adj[vertex_src].end()) // if an edge is found between cities
   {
-    this->distance_matrix[ getCityEnum(vertex_src) ][ getCityEnum(vertex_dst) ] = weight;
+    this->distances[ getCityEnum(vertex_src) ][ getCityEnum(vertex_dst) ] = weight;
     // do not forget that edges are double sided!
-    this->distance_matrix[ getCityEnum(vertex_dst) ][ getCityEnum(vertex_src) ] = weight;
+    this->distances[ getCityEnum(vertex_dst) ][ getCityEnum(vertex_src) ] = weight;
     std::cout << "Successfullys rearranged! "<< vertex_src << "<-->" << vertex_dst << "= " << weight << std::endl;
 
   }
@@ -200,7 +200,7 @@ std::vector< std::string> Graph::uniform_cost_search(std::string src, std::strin
 
     for (const auto& neighbor : adj[currentCity]) 
     { // visit every neighbor of current city
-      int weight = this->distance_matrix[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
+      int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
       if (weight < dist[neighbor])
       { 
         //If current cost is lower than before update the prev list, and distance
@@ -261,7 +261,7 @@ std::vector <std::string> Graph::k_nearest_search(std::string src, int *visited,
 
     for (const auto& neighbor : adj[currentCity]) 
     { // visit every neighbor of current city
-      int weight = this->distance_matrix[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
+      int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
       if (weight < dist[neighbor])
       { 
             dist[neighbor] = weight;
