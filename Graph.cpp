@@ -1,8 +1,8 @@
 #include "Graph.hpp"
-#include <queue>
-Graph::Graph(std::string txt_name, std::string distance_name)
+
+void Graph::read_adj_file(std::string &adj_name)
 {
-  std::ifstream infile(txt_name);
+  std::ifstream infile(adj_name);
   std::string line;
 
   while (std::getline(infile, line))
@@ -34,7 +34,10 @@ Graph::Graph(std::string txt_name, std::string distance_name)
       this->adj[initialCity] = vertices;
     }
   }
+}
 
+void Graph::read_dist_file(std::string &distance_name)
+{
   std::ifstream infile_distance(distance_name);
   std::string line_distance;
   int row = 0;
@@ -61,7 +64,12 @@ Graph::Graph(std::string txt_name, std::string distance_name)
     }
     row++;
   }
+}
 
+Graph::Graph(std::string txt_name, std::string distance_name)
+{
+  this->read_adj_file(txt_name);
+  this->read_dist_file(distance_name);
 }
 
 std::vector <std::string> Graph::neighbors(std::string vertex)
@@ -126,6 +134,36 @@ void print_pq(    std::priority_queue<std::pair<int, std::string>, std::vector<s
   std::cout << std::endl;
 
 }
+// UCS functions
+void Graph::add_to_queue(std::string &currentCity, std::map <std::string, int> &dist, std::map <std::string, std::string> &prev, prio_queue &pq)
+{
+  for (const auto& neighbor : this->adj[currentCity]) 
+  { // visit every neighbor of current city
+    int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
+    if (weight < dist[neighbor])
+    { 
+      //If current cost is lower than before update the prev list, and distance
+      prev[neighbor] = currentCity;
+      dist[neighbor] = weight;
+      pq.push({weight, neighbor});
+    }
+  }
+}
+
+std::vector <std::string> Graph::create_ucs_path(std::map < std::string, std::string> &prev, std::string dst, std::string src)
+{
+  // shortest path found !
+  std::vector<std::string> path;
+  std::string current = dst;
+  while (current != src) 
+  {
+    path.push_back(current);
+    current = prev[current];
+  }
+  path.push_back(src);
+  reverse(path.begin(), path.end()); // reverse the path because of previous list
+  return path;
+}
 
 void Graph::print_path(std::vector <std::string> &path)
 {
@@ -162,15 +200,17 @@ std::vector< std::string> Graph::uniform_cost_search(std::string src, std::strin
   std::map<std::string, int> dist; // To store distances
   std::map<std::string, std::string> prev; // To store previous node in the shortest path
   // Priority queue for (distance, city) query (low distance will be in front of the queue)
-  std::priority_queue<std::pair<int, std::string>, std::vector<std::pair<int, std::string>>, std::greater<std::pair<int, std::string>>> pq;
+  prio_queue pq;
 
   //Set initial distance to max (for find shortest one)
   for (const auto& node : this->adj)
   {
     dist[node.first] = 9999999;
   }
+
   dist[src] = 0;
   pq.push({0, src}); // inital state
+
   while (!pq.empty()) 
   {   
     // loop until queue is empty
@@ -183,15 +223,7 @@ std::vector< std::string> Graph::uniform_cost_search(std::string src, std::strin
 
     if (currentCity == dst) 
     { // shortest path found !
-      std::vector<std::string> path;
-      std::string current = dst;
-      while (current != src) 
-      {
-        path.push_back(current);
-        current = prev[current];
-      }
-      path.push_back(src);
-      reverse(path.begin(), path.end()); // reverse the path because of previous list
+      std::vector<std::string> path = this->create_ucs_path(prev, dst, src);
       cost = dist[currentCity]; // total cost
       return path;
     }
@@ -200,20 +232,42 @@ std::vector< std::string> Graph::uniform_cost_search(std::string src, std::strin
     {
       continue; // already founded shorter path to this city
     }
+    this->add_to_queue(currentCity, dist, prev, pq);
 
-    for (const auto& neighbor : adj[currentCity]) 
-    { // visit every neighbor of current city
-      int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
-      if (weight < dist[neighbor])
-      { 
-        //If current cost is lower than before update the prev list, and distance
-        prev[neighbor] = currentCity;
-        dist[neighbor] = weight;
-        pq.push({weight, neighbor});
-      }
-    }
   }
   return {}; // path is not find 
+}
+
+// k-nearest functions
+void Graph::add_to_queue(std::string &currentCity, std::map <std::string, int> &dist, prio_queue &pq)
+{
+  for (const auto& neighbor : adj[currentCity]) 
+  { // visit every neighbor of current city
+    int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
+    if (weight < dist[neighbor])
+    { 
+      dist[neighbor] = weight;
+      pq.push({weight, neighbor});
+    }
+  }
+}
+
+void Graph::print_k_city(std::vector <std::pair<std::string, int>> &visited_cities)
+{
+  if(visited_cities.size() > 0)
+  {  
+    std::cout << "Cities : ";
+    // print the path
+    for (size_t i {0}; i < visited_cities.size() ; i++)
+    {
+        std::cout << visited_cities[i].first << "("<< visited_cities[i].second  << ")" << " ";
+    }
+    std::cout << std::endl;
+  }
+  else
+  {
+    std::cout << "No city is found check Start/End city name it should start with camel case!" << std::endl;
+  }
 }
 
 void Graph::k_nearest(std::string src, int k)
@@ -269,35 +323,8 @@ std::vector <std::pair<std::string, int>> Graph::k_nearest_search(std::string sr
     { // shortest path found !
       return visited_cities;
     }
-
-    for (const auto& neighbor : adj[currentCity]) 
-    { // visit every neighbor of current city
-      int weight = this->distances[ getCityEnum(currentCity) ][ getCityEnum(neighbor) ] + dist[currentCity];
-      if (weight < dist[neighbor])
-      { 
-            dist[neighbor] = weight;
-            pq.push({weight, neighbor});
-      }
-    }
+    this->add_to_queue(currentCity, dist, pq);
   }
   return {}; // no cities 
 
-}
-
-void Graph::print_k_city(std::vector <std::pair<std::string, int>> &visited_cities)
-{
-  if(visited_cities.size() > 0)
-  {  
-    std::cout << "Cities : ";
-    // print the path
-    for (size_t i {0}; i < visited_cities.size() ; i++)
-    {
-        std::cout << visited_cities[i].first << "("<< visited_cities[i].second  << ")" << " ";
-    }
-    std::cout << std::endl;
-  }
-  else
-  {
-    std::cout << "No city is found check Start/End city name it should start with camel case!" << std::endl;
-  }
 }
