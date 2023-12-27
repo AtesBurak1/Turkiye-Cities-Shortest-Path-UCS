@@ -1,6 +1,7 @@
 #ifndef ENUM_HPP
 #define ENUM_HPP
 #include <unordered_map>
+#include <map>
 #include <string>
 #include <algorithm>
 enum City {
@@ -89,4 +90,6 @@ enum City {
 };
 
 City getCityEnum(const std::string& cityName);
+std::string num_to_city(const size_t& num);
+
 #endif

@@ -26,31 +26,11 @@ class Graph{
     std::map <std::string, std::vector <std::string>> adj; // choice of adjacency lists (linked list, matrix or hash table or whatever you consider more suitable
     std::map <int, std::map <int,int>> distances;
     void print_path(std::vector <std::string>&);
-    void print_k_city(std::vector <std::string>&);
+    void print_k_city(std::vector <std::pair<std::string, int>>&);
     std::vector <std::string> uniform_cost_search(std::string, std::string,int &, int*);
-    std::vector <std::string> k_nearest_search(std::string, int*, int, int);
+    std::vector <std::pair<std::string, int>> k_nearest_search(std::string, int*, int, int);
     
 
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

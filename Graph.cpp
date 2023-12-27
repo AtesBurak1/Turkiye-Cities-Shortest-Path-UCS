@@ -42,21 +42,24 @@ Graph::Graph(std::string txt_name, std::string distance_name)
   {
     std::istringstream iss(line_distance);
     std::string value;
-    int col = 0;
-    int skips = 0;
+    size_t col = 0;
+    size_t skips = 0;
     while (std::getline(iss, value, ';')) 
     {
-      if (skips < 2) {
-        // Skip the first 2
+      if(skips < 2)
+      { // skip the first 2 columns in every line
         skips++;
+        col++;
         continue;
       }
       // Convert the string distance value to integer
-      this->distances[row][col] = std::stoi(value);
-      ++col;
+      if(find(this->adj[num_to_city(row)].begin(), this->adj[num_to_city(row)].end(), num_to_city(col - 2)) != this->adj[num_to_city(row)].end())
+      {
+        this->distances[row][col-2] = std::stoi(value);
+      }
+      col++;
     }
-
-    ++row;
+    row++;
   }
 
 }
@@ -215,16 +218,23 @@ std::vector< std::string> Graph::uniform_cost_search(std::string src, std::strin
 
 void Graph::k_nearest(std::string src, int k)
 {  
-  int count {0};
-  int visited[81] = {0}; // initilaze visited list
-  std::vector <std::string> visited_cities = this->k_nearest_search(src, visited, count, k);
-  this->print_k_city(visited_cities);
+  if(k <= 79)
+  {
+    int count {0};
+    int visited[81] = {0}; // initilaze visited list
+    std::vector <std::pair<std::string, int>> visited_cities = this->k_nearest_search(src, visited, count, k);
+    this->print_k_city(visited_cities);
+  }
+  else
+  {
+    std::cout << "Entered number is false or greated than 79!" << std::endl;
+  }
 }
 
-std::vector <std::string> Graph::k_nearest_search(std::string src, int *visited, int count, int k)
+std::vector <std::pair<std::string, int>> Graph::k_nearest_search(std::string src, int *visited, int count, int k)
 {
   std::map<std::string, int> dist; // To store distances
-  std::vector <std::string> visited_cities;
+  std::vector <std::pair<std::string, int>> visited_cities;
   // Priority queue for (distance, city) query (low distance will be in front of the queue)
   std::priority_queue<std::pair<int, std::string>, std::vector<std::pair<int, std::string>>, std::greater<std::pair<int, std::string>>> pq;
   //Set initial distance to max 
@@ -246,11 +256,12 @@ std::vector <std::string> Graph::k_nearest_search(std::string src, int *visited,
     {
       continue; // already founded shorter path to this city
     }
-    visited[getCityEnum(currentCity)] = 1; // mark as visited
 
-    if(currentCity != src && find(visited_cities.begin(),visited_cities.end(), currentCity) == visited_cities.end())
-    {
-      visited_cities.push_back(currentCity);
+    if(currentCity != src && visited[getCityEnum(currentCity)] == 0)
+    { 
+      visited[getCityEnum(currentCity)] = 1; // mark as visited
+      std::pair pr = std::make_pair(currentCity, currentDistance);
+      visited_cities.push_back(pr);
       count++; // count the cities when we pop!
     }
 
@@ -273,7 +284,7 @@ std::vector <std::string> Graph::k_nearest_search(std::string src, int *visited,
 
 }
 
-void Graph::print_k_city(std::vector <std::string> &visited_cities)
+void Graph::print_k_city(std::vector <std::pair<std::string, int>> &visited_cities)
 {
   if(visited_cities.size() > 0)
   {  
@@ -281,7 +292,7 @@ void Graph::print_k_city(std::vector <std::string> &visited_cities)
     // print the path
     for (size_t i {0}; i < visited_cities.size() ; i++)
     {
-        std::cout << visited_cities[i] << " ";
+        std::cout << visited_cities[i].first << "("<< visited_cities[i].second  << ")" << " ";
     }
     std::cout << std::endl;
   }
