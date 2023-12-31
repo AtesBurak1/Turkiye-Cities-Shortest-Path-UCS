@@ -275,7 +275,7 @@ void Graph::k_nearest(std::string src, int k)
   if(k <= 79)
   {
     int count {0};
-    int visited[81] = {0}; // initilaze visited list
+    int visited[CITIES] = {0}; // initilaze visited list
     std::vector <std::pair<std::string, int>> visited_cities = this->k_nearest_search(src, visited, count, k);
     this->print_k_city(visited_cities);
   }
